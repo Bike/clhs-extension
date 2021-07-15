@@ -1,0 +1,19 @@
+Symbol MAKE-METHOD
+
+Syntax:
+
+  make-method form
+
+Arguments:
+
+  form - a form.
+
+Description:
+
+  A make-method expression is a list that can be used in place of a method in the context of CALL-METHOD and APPLY-METHOD forms. The expression denotes a conceptual method that ignores method arguments such as next methods, and evaluates the form in the lexical environment the CALL-METHOD or APPLY-METHOD form appears in, possibly augmented with a local macro definition for CALL-METHOD and with bindings named by symbols not accessible from the common-lisp-user package. It is not required that an actual method object corresponding to this conceptual method is actually constructed.
+
+  A make-method expression can only occur where specified by the syntax of forms. The only standardized macros that allow make-method expressions are CALL-METHOD and APPLY-METHOD. The consequences of attempting to evaluate a make-method expression are undefined.
+
+See also:
+
+  CALL-METHOD, MAKE-METHOD, DEFINE-METHOD-COMBINATION

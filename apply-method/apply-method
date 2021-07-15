@@ -1,0 +1,50 @@
+Macro APPLY-METHOD
+
+Syntax:
+
+  apply-method method (&rest method-arguments) &rest arguments => results
+
+Arguments and Values:
+
+  method - a method or a MAKE-METHOD expression; not evaluated.
+  method-arguments - objects; evaluation varies (see Description).
+  arguments - forms; evaluated into a spreadable argument list designator.
+  results - the values returned by the method application.
+
+Description:
+
+  Applies the method to the arguments. For example, for a generic function call (foo bar baz), a method could be called with (apply-method #<method> (method-arguments...) bar baz nil).
+
+  If method is a method, rather than a MAKE-METHOD expression, the expansion of APPLY-METHOD is decided as if by calling the EXPAND-APPLY-METHOD generic function. That is, the expansion of (apply-method #<method> ...) is equivalent to the primary value returned by (expand-apply-method #<method> method-arguments arguments environment), environment being the environment the APPLY-METHOD form is expanded in.
+
+  For standard methods, the method-arguments must match the lambda-list (&optional next-method-list), and next-method-list must be a list whose elements are methods and MAKE-METHOD expressions. See EXPAND-APPLY-METHOD for details.
+
+  A MAKE-METHOD expression is a list (MAKE-METHOD form). If method is a MAKE-METHOD expression, APPLY-METHOD's expansion is equivalent to the form. Any CALL-METHOD forms within the form and not within another MAKE-METHOD form must use the same argument forms as are provided to APPLY-METHOD. APPLY-METHOD must ensure that the forms are evaluated at most once. The method-arguments are ignored and not evaluated.
+
+  APPLY-METHOD is primarily used in the expansion of CALL-METHOD forms, but it may also be used directly by the programmer.
+
+See also:
+
+  CALL-METHOD, MAKE-METHOD, EXPAND-APPLY-METHOD
+
+Notes:
+
+  APPLY-METHOD could be implemented as follows:
+
+  (defun make-method-expression-p (expr)
+    (and (consp expr) (eq (car expr) 'make-method)
+         (consp (cdr expr)) (null (cddr expr))))
+  (defun call-method-expander (method margs argforms)
+    ;; Prevent multiple evaluation
+    (let ((asyms (loop repeat (length argforms) collect (gensym "ARG"))))
+      `(let (,@(loop for asym in asyms for arg in argforms
+                     collect `(,asym ,arg)))
+         (apply-method ,method (,@margs) ,@asyms))))
+  (defmacro apply-method (method (&rest margs) &rest args &environment env)
+    (if (make-method-expression-p expr)
+        `(macrolet ((call-method (method &rest margs)
+                      (call-method-expander method margs args)))
+           (progn ,(second expr))) ; progn rules out declarations
+        (expand-apply-method method margs args env)))
+
+  Due to the restriction that conforming programs cannot define methods on standard-defined generic functions which are applicable when the generic function only receives objects that are direct instances of standard-defined classes as arguments, implementations do not need to call EXPAND-APPLY-METHOD when given a direct instance of STANDARD-METHOD. This can be used to break vicious metacircles.

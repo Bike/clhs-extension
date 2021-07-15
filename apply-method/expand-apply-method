@@ -1,0 +1,30 @@
+Standard Generic Function EXPAND-APPLY-METHOD
+
+Syntax:
+
+  expand-apply-method method method-arguments arguments env
+
+Method Signatures:
+
+  expand-apply-method (method standard-method) method-arguments arguments env
+
+Arguments and Values:
+
+  method - a method.
+  method-arguments - a list of objects.
+  arguments - a list of forms that will be evaluated in the given environment to a spreadable argument list designator.
+  env - an environment.
+
+Description:
+
+  The generic function EXPAND-APPLY-METHOD creates and returns a form to use as the expansion of an APPLY-METHOD form that applies the given method. The form, when evaluated in the given environment, should apply the method to arguments obtained from evaluating the argument forms, and return all values the method returns.
+
+  The standard method has the following behavior. The method-arguments must match the lambda list (&optional next-method-list &rest more). next-method-list must be a proper list in which all elements are either methods or make-method expressions. The next-method-list is used to implement CALL-NEXT-METHOD and NEXT-METHOD-P. In the returned form, if the method being applied needs to invoke its next method, and it actually has a next method, it effectively evaluates `(apply-method ,(first next-method-list) (,(rest next-method-list) ,@more) ...implementation-dependent)`, i.e. any remaining method-arguments are passed along unprocessed. This is to facilitate interoperation with other method classes. Beyond these requirements, the return value of the standard method is unspecified.
+
+  Programmers defining method classes with their own calling conventions should define or override EXPAND-APPLY-METHOD in order to implement these conventions.
+
+  EXPAND-APPLY-METHOD is primarily used in the expansion of APPLY-METHOD forms, but it may also be used directly by the programmer.
+
+Notes:
+
+  Because APPLY-METHOD and EXPAND-APPLY-METHOD can be used directly by the programmer, the result of EXPAND-APPLY-METHOD may be evaluated outside the context of an effective method. For example, CALL-METHOD may not be bound, not that CALL-METHOD would usually be used anyway.
