@@ -126,6 +126,11 @@ Proposal (MAKE-METHOD-LAMBDA-HARMFUL:NEW-OPERATORS-INCOMPATIBLE):
 
     No extensive survey has been conducted, but use of either operator is
     probably rare. [TODO: Check that.]
+    
+    Requiring users to define their own method-defining macros could cause them
+    to have to do more work. It may be worthwhile to explore operators MOP
+    could export to ease this process, such as operators to parse specializer
+    names, or to parse out qualifiers from a DEFMETHOD form.
 
 Proposal (MAKE-METHOD-LAMBDA-HARMFUL:CLARIFY):
 
