@@ -4,6 +4,7 @@ Category:       CHANGE
 Status:         proposed
 Edit History:   15-Jul-21, Version 1 by Bike.
 References:     CALL-METHOD, MAKE-METHOD, MAKE-METHOD-LAMBDA, METHOD-FUNCTION
+                COMPUTE-DISCRIMINATING-FUNCTION
 
 Problem Description:
 
@@ -77,6 +78,9 @@ Proposal (MAKE-METHOD-LAMBDA-HARMFUL:NEW-OPERATORS-INCOMPATIBLE):
   Delete the MAKE-METHOD local macro and replace it with the definition of
   MAKE-METHOD as a symbol described in the accompanying pages. Replace the
   definition of the CALL-METHOD local macro with that in the accompanying pages.
+
+  Edit the description of the generic function invocation protocol in the
+  definition of COMPUTE-DISCRIMINATING-FUNCTION to describe the new system.
 
   Add a glossary entry for "make-method expression".
 
@@ -196,6 +200,9 @@ Proposal (APPLY-METHOD:NEW-OPERATORS-COMPATIBLE):
 
   Add text stating that method functions in conforming programs cannot let the
   method arguments or next method list escape, or mutate them.
+
+  Edit the description of the generic function invocation protocol in the
+  definition of COMPUTE-DISCRIMINATING-FUNCTION to describe the new system.
 
   Add a glossary entry for "make-method expression".
 
