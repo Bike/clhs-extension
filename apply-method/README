@@ -209,3 +209,21 @@ Current practice:
 
   Clasp implements, roughly, NEW-OPERATORS-COMPATIBLE. SBCL implements
   MAKE-METHOD-LAMBDA but beyond that I'm not sure.
+
+Discussion:
+
+  CALL-METHOD explicitly allows shadowing. This is different from every other
+  standard local macro or function, but greatly increases the ability to use
+  effective methods in unusual contexts, as is useful for some exotic MOP work.
+  That said, it might cause problems with implementations' "package lock"
+  facilities. If it's too much to overcome, an alternate operator could be
+  defined, WITH-CALL-METHOD or something.
+
+  Some problems relating to COMPILE-FILE are not gone into here. Since this
+  proposal lets users use CALL-METHOD and APPLY-METHOD directly, it would be
+  possible to use COMPILE-FILE on code using these operators, and in this case
+  it is not explicitly defined here whether externalizability problems could
+  result. CALL-METHOD and APPLY-METHOD involve literal methods, but may expand
+  into code that doesn't. It could perhaps be noted for example that whether the
+  standard EXPAND-APPLY-METHOD method returns code with unexternalizable objects
+  in it is undefined.
