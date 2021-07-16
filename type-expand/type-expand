@@ -1,0 +1,51 @@
+Function TYPE-EXPAND, TYPE-EXPAND-1
+
+Syntax:
+
+  type-expand type-specifier &optional env => expansion, expanded-p
+  type-expand-1 type-specifier &optional env => expansion, expanded-p
+
+Arguments and Values:
+
+  type-specifier - a type specifier.
+  env - an environment object. The default is nil.
+  expansion - a type specifier.
+  expanded-p - a generalized boolean.
+
+Description:
+
+  typexpand and typexpand-1 expand type macros.
+
+  If type specifier is a macro type specifier, then macroexpand-1 expands the macro type specifier once.
+
+  typexpand repeatedly expands type specifier until it is no longer a macro type specifier. In effect, typexpand calls typexpand-1 repeatedly until the secondary value it returns is nil.
+
+  If type specifier is a macro type specifier, then the expansion is a macro expansion and expanded-p is true. Otherwise, the expansion is the given type specifier and expanded-p is false.
+
+  Macro expansion is carried out as follows. Once typexpand-1 has determined that the type specifier is a macro type specifier, it obtains an appropriate expansion function as by type-macro-function. This function is called with two arguments: the type-specifier, and the env. The value returned from this call is taken to be the expansion of the type specifier. [paragraph only included if proposal "THREE-NEW-OPERATORS" is adopted]
+
+In addition to macro definitions in the global environment, any local macro definitions established within env by typelet are considered. If only type specifier is supplied as an argument, then the environment is effectively null, and only global macro definitions as established by deftype are considered. [paragraph only included if "TYPELET" is adopted]
+
+Examples:
+
+;; Note: We use PAIR instead of CONS because an implementation is permitted
+;; to define CONS as a macro type specifier itself.
+(deftype list-of (&rest elements)
+  (if (null elements)
+      'null
+      `(pair ,(first elements) (list-of ,@(rest elements)))))
+(deftype list-n (n &optional element-type)
+  `(list-of ,@(make-list n :initial-element element-type)))
+
+(typexpand-1 '(list-n 2 integer)) => (LIST-OF INTEGER INTEGER), true
+(typexpand '(list-n 2 integer)) => (PAIR INTEGER (LIST-OF INTEGER)), true
+(typexpand 'not-a-macro) => NOT-A-MACRO, false
+(typexpand-1 '(not-a-macro integer)) => (NOT-A-MACRO INTEGER), false
+
+Affected By:
+
+  DEFTYPE, setf of TYPE-MACRO-FUNCTION [if proposal is adopted], TYPELET [if proposal is adopted]
+
+Exceptional Situations:
+
+  None.

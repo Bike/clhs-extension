@@ -1,0 +1,26 @@
+Accessor TYPE-MACRO-FUNCTION
+
+Syntax:
+
+  type-macro-function name &optional environment => function
+  (setf (type-macro-function name &optional environment) new-function)
+
+Arguments and Values:
+
+  name - a symbol.
+  environment - an enviornment object.
+  function, new-function - a type macro function, or nil.
+
+Description:
+
+  Accesses the type macro function named name, if any, in the environment.
+
+  A value of nil denotes the absence of a type macro function named name.
+
+Exceptional Situations:
+
+  The consequences are undefined if environment is non-nil in a use of setf of type-macro-function.
+
+See Also:
+
+  DEFTYPE
