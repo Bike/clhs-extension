@@ -1,0 +1,129 @@
+Issue:          COMPUTE-EFFECTIVE-METHOD-CACHING-VAGUE
+Forum:          Extension
+Category:       CLARIFICATION
+Status:         proposed
+Edit history:   2021-07-15, version 1 by Bike
+References:     COMPUTE-EFFECTIVE-METHOD, COMPUTE-DISCRIMINATING-FUNCTION
+
+Problem Description:
+
+  The Meta-Object Protocol describes in detail how discriminating functions can
+  cache the results of COMPUTE-APPLICABLE-METHODS-USING-CLASSES. Similar detail
+  is not provided for the next step, determination of the effective method.
+  In principle, the effective method could vary even if the applicable methods
+  don't: method combinations can execute arbitrary code to determine a
+  combination, and user methods on COMPUTE-EFFECTIVE-METHOD can have arbitrary
+  behavior. Also, an implementation may allow method combinations to be
+  redefined, although the standard does not mention this possibility.
+
+  These considerations are not very practical, considering how little custom
+  method combinations are used. However, another consideration is that caching
+  of effective methods may be done differently from that of discrimination.
+  Particularly, an implementation could decide not to invalidate effective
+  method caching in some situations in which the generic function invocation
+  protocol requires discrimination caches to be discarded: when methods have
+  been added to or removed from the generic function (since the effective method
+  is specific to a particular sequence of applicable methods anyway), when the
+  class precedence lists of specializers which are classes change (since this
+  does not change the applicable methods, just perhaps which methods are
+  applicable to what), and when the discrimination cannot be cached at all, i.e.
+  when C-A-M-U-C returns a second false value, since COMPUTE-APPLICABLE-METHODS
+  can and probably will still return the same ordered set of applicable methods
+  multiple times. These optimizations ought to be specifically allowed.
+
+  Requiring COMPUTE-EFFECTIVE-METHOD to be called every time a generic function
+  is invoked would be ruinous for performance, so that option is not
+  contemplated here.
+
+Proposal (COMPUTE-EFFECTIVE-METHOD-CACHING-VAGUE:BASIC):
+
+  Add a caching protocol for effective methods to the definition of the generic
+  function invocation protocol:
+
+  "The discriminating function is permitted to memoize the returned values of
+  COMPUTE-EFFECTIVE-METHOD as follows. The discriminating function may reuse the
+  effective method for a given ordered set of applicable methods provided that
+  the generic function has not been reinitialized since the effective method was
+  computed."
+
+  Rationale:
+
+    Simple while clarifying things and legitimizing the optimizations described.
+
+  Cost to Implementors:
+
+    If any implementation does not invalidate cached effective methods when the
+    generic function is reinitialized, some work would have to be done to make
+    it do so, but I don't know that there are any such implementations.
+
+  Cost to Users:
+
+    Anybody relying on variable effective method combinations would be in
+    trouble. I don't think anybody is doing so really, but see Discussion.
+
+Proposal (COMPUTE-EFFECTIVE-METHOD-CACHING-VAGUE:DYNAMIC):
+
+  Add a caching protocol for effective methods analogous to that for
+  COMPUTE-APPLICABLE-METHODS-USING-CACHES to the generic function invocation
+  protocol:
+
+  "The discriminating function is permitted to memoize the first two return
+  values of COMPUTE-EFFECTIVE-METHOD as follows. The discriminating function may
+  reuse the effective method for a given ordered set of applicable methods
+  provided that the generic function has not been reinitialized since the
+  effective method was computed, and that the third return value of
+  COMPUTE-EFFECTIVE-METHOD was true."
+
+  Correspondingly, redefine COMPUTE-EFFECTIVE-METHOD to return three values, and
+  state that the standard method unconditionally returns a true third value.
+
+  Rationale:
+
+    Clarifies things and allows the optimizations in almost all cases, but
+    allows power users to define and use variable effective method combinations
+    if they want.
+
+  Cost to Implementors:
+
+    Changing COMPUTE-EFFECTIVE-METHOD in this way would be a small change.
+    COMPUTE-DISCRIMINATING-FUNCTION might be more involved to deal with.
+
+  Cost to Users:
+
+    Anybody using variable effective method combinations would have to make some
+    small changes, i.e. defining an appropriate COMPUTE-EFFECTIVE-METHOD method.
+
+Discussion:
+
+  Custom method combinations are one of the most unused features in the
+  language, so this proposal is mostly for the sake of clarifying what
+  optimizations are permissible. The one exception is the paper Didier Verna
+  presented at the 2018 European Lisp Symposium, "Method Combinators". This
+  paper contemplated replacing a generic function's method combination per-call.
+  I honestly have no idea why you would want to do that, and the paper doesn't
+  seem to mention why (and I don't recall if the presentation covered it), but
+  maybe it's useful.
+
+  The above proposals don't actually help this use, however. In fact, they make
+  Verna's implementation technique more inefficient. The technique Verna used
+  was to compute and cache a discriminating function for each generic function/
+  method combination pair, and to use REINITIALIZE-INSTANCE to swap between
+  method combinations. But under either proposal here, reinitializing the
+  generic function would invalidate the discriminating functions' effective
+  method caches, forcing COMPUTE-EFFECTIVE-METHOD to be called again.
+
+  A more cooperative proposal would be to specify that effective methods can be
+  cached, i.e. COMPUTE-EFFECTIVE-METHOD need not be called again, if it has been
+  called previously on the same generic-function, method-combination, and
+  ordered set of applicable methods. This is not contemplated here because
+  method combination redefinition/reinitialization is not defined anyway,
+  because this would rule out COMPUTE-EFFECTIVE-METHOD methods that might
+  actually want to know when a generic function changes, and because the value
+  of maintaining an effective method cache for a method combination a generic
+  function no longer has seems so marginal that I doubt any implementation does
+  or would do it. But some more thought here might be interesting.
+
+  Another concern is that there is no provision that effective method caches be
+  invalidated by a change to COMPUTE-EFFECTIVE-METHOD itself, e.g. an added or
+  removed applicable method. That is not contemplated here because it is
+  similarly not provided for changes to C-A-M-U-C.
