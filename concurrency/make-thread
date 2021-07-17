@@ -1,0 +1,47 @@
+Function MAKE-THREAD
+
+Syntax:
+
+  make-thread function &key name arguments => thread
+
+Arguments and Values:
+
+  function - a function designator.
+  name - a symbol.
+  arguments - a list of objects.
+
+Description:
+
+  Creates and returns a thread named name, which will call the function function
+  with the given arguments. When the function returns, the thread ends.
+
+  A call to MAKE-THREAD synchronizes-with the first evaluation of the new
+  thread.
+
+  While the created thread shares the global environment, it starts in a new
+  dynamic environment, not the dynamic environment MAKE-THREAD was called in.
+
+  This means that, for example:
+
+  * Local dynamic variable bindings are not shared (though global bindings are).
+  * Exit points, as established by TAGBODY, BLOCK, UNWIND-PROTECT, or CATCH, are
+    not valid.
+  * Handlers and restarts are not active.
+
+  It is implementation-defined whether the thread's new dynamic environment is
+  actually empty or includes some bindings etc. defined by the implementation.
+  [Should this be more restrictive? For example, as written it allows an
+   implementation to rebind every dynamic variable that was bound in the thread
+   creator, making it impossible for the new thread to access global bindings.]
+
+  It is encouraged for a new ABORT restart to be available, and for this restart
+  to effectively call ABORT-THREAD.
+
+Exceptional Situations:
+
+  An error of type TYPE-ERROR should be signaled if function is not a function designator.
+  An error of type TYPE-ERROR should be signaled if name is not a symbol.
+
+See Also:
+
+  Chapter NN (Concurrency), Section NN.1.3 Note on Parallelism

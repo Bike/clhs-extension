@@ -1,0 +1,66 @@
+Function INTERRUPT-THREAD
+
+Syntax:
+
+  interrupt-thread thread function => implementation-dependent
+
+Arguments and Values:
+
+  thread - a thread.
+  function - a function designator.
+
+Description:
+
+  Attempts to cause the given thread to call the given function with no
+  arguments. There is no requirement for it to ever actually do so at any time,
+  but implementations are encouraged to call interruption functions once, as
+  soon as practicable, in the order that they are received.
+
+  This function may have additional undefined effects. It is intended for
+  debugging purposes only.
+
+  ["This function can do whatever" is way too weak. The problem is that, while
+  it's definitely useful for debugging and sometimes useful in production if you
+  really know what you're doing, asynchonously interrupting a thread that could
+  be doing god-knows-what is inherently unsafe.
+  Some ideas:
+  1) add a WITHOUT-INTERRUPTS facility, but this doesn't really define behavior
+  2) define that safe code can't be interrupted, but ditto
+  3) add a function to run all received interrupts in order; then, if a thread
+     is uninterruptable via the previous mechanisms but calls this function, the
+     interrupts can be defined to run at that point
+  4) define "safe points" throughout the standard when interrupts can run]
+
+  [Define INTERRUPT, a subclass of CONDITION.
+   Interruptions can be signaled (as by SIGNAL) by any standard operator.
+   (Operators that should especially signal interrupts are SLEEP, THREAD-JOIN,
+    and CONDITION-WAIT. Maybe require it?)
+   An interrupt being signaled indicates that the thread has been interrupted
+   and should respond at its convenience.
+   If it is not handled, or if a handler uses the DEFER-INTERRUPT restart, the
+   condition is kept in a list readable with operator PENDING-INTERRUPTS; the
+   next time an operator like SLEEP is called it will be signaled again.
+   The convenience function SIGNAL-INTERRUPTS signals all pending interrupts,
+   and can be used by user operators that wish to accept interrupts, e.g. if
+   they take a long time to run and don't necessarily SLEEP/etc.
+   A restart REJECT-INTERRUPT is also available. If this is used the interrupt
+   is removed from the pending interrupts list. The restart accepts one
+   argument, which is returned from INTERRUPT-THREAD along with a NIL to
+   indicate that the interrupt was rejected. The argument is supposed to be a
+   reason for the rejection.
+   Define a generic function PERFORM-INTERRUPT which accepts one argument, an
+   interrupt. This can be called by a thread to acquiesce to the interrupt
+   request.
+   Define DESTRUCTION-INTERRUPT, a subclass of INTERRUPT. The method on
+   PERFORM-INTERRUPT calls ABORT-THREAD. No initargs.
+   Define CALL-INTERRUPT, a subclass of INTERRUPT. The method on
+   PERFORM-INTERRUPT calls a thunk associated with the interrupt with initarg
+   :function.
+   Define SIMPLE-INTERRUPT, a subclass of INTERRUPT and SIMPLE-CONDITION. The
+   method on PERFORM-INTERRUPT does nothing.
+   Define INTERRUPT-THREAD to take a condition designator with default type
+   SIMPLE-INTERRUPT, which is then passed along to the thread.
+   Possibly add declarations to indicate that the compiler should/should not
+   effectively insert calls to SIGNAL-INTERRUPTS at certain points, e.g. in
+   loops, when memory is allocated, something.
+   This is based on Java's Thread class's interruptions.]

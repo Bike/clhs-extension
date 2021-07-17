@@ -1,0 +1,30 @@
+Function JOIN-THREAD
+
+Syntax:
+
+  join-thread thread => value*
+
+Arguments and Values:
+
+  thread - a thread.
+  values - the values returned by the thread's function.
+
+Description:
+
+  Waits for the given thread to finish, and then returns its results.
+
+  The last evaluation in a thread synchronizes-with any calls to JOIN-THREAD on
+  that thread returning, or with such calls signaling ABNORMAL-EXIT as described
+  under "Exceptional Situations" below.
+
+Exceptional Situations:
+
+  An error should be signaled if thread is the current thread.
+
+  An error of type ABNORMAL-EXIT is signaled if the thread was aborted.
+
+  An error of type TYPE-ERROR should be signaled if thread is not a THREAD.
+
+See Also:
+
+  ABORT-THREAD, Section NN.2 (Threads)

@@ -1,0 +1,6 @@
+A lock is a class of object that can be used to implement mutual exclusion, i.e. preventing multiple threads from evaluating the same code simultaneously. A lock that is not held can be acquired by a thread, after which it is held by that thread. A thread holding a lock can release it, after which it is not held. Because only one thread can hold a lock at a time, code that can only be evaluated while a lock is held can only be evaluated by one thread at a time.
+
+lock lockp lock-name make-lock acquire-lock release-lock with-lock-held
+Figure [whatever]. Some defined names relating to locks.
+
+NN.3.1 Semantics of Locks

@@ -1,0 +1,59 @@
+(define-condition interrupt ()
+  ;; whoa man, a mutable condition??
+  ((%reason :initarg :reason :accessor %reason)
+   (%status :initarg :status :accessor %status)))
+
+(defun pending-interrupts (&optional (thread (current-thread)))
+  (with-lock-held ((%thread-pending-interrupts-lock thread))
+    (%pending-interrupts thread)))
+
+(defun %unpend-interrupt (interrupt)
+  (with-lock-held ((%thread-pending-interrupts-lock thread))
+    ;; note: weird consequences if the same interrupt is in the list twice
+    (setf (%pending-interrupts thread)
+          (delete interrupt (%pending-interrupts thread)))))
+
+(defun signal-interrupts ()
+  ;; run most recent last, thus reverse
+  (mapcar #'%signal-interrupt (reverse (pending-interrupts))))
+
+(defun %signal-interrupt (interrupt)
+  (restart-case (signal interrupt)
+    (defer-interrupt ())
+    (reject-interrupt (&optional reason)
+      (setf (%reason interrupt) reason
+            (%status interrupt) :rejected)
+      (%unpend-interrupt interrupt))))
+
+(defun defer-interrupt (&optional condition)
+  (invoke-restart (find-restart 'defer-interrupt condition)))
+
+(defun reject-interrupt (&optional reason condition)
+  (invoke-restart (find-restart 'reject-interrupt condition) reason))
+
+(defun interrupt-thread (thread datum &rest arguments)
+  (let ((interrupt (coerce-to-condition datum arguments
+                                        'interrupt 'simple-interrupt)))
+    (with-lock-held ((%thread-pending-interrupts-lock thread))
+      (push interrupt (%pending-interrupts thread)))))
+
+(defgeneric perform-interrupt (interrupt))
+
+(defmethod perform-interrupt :after ((interrupt interrupt))
+  (setf (%status interrupt) :complete)
+  (%unpend-interrupt interrupt))
+
+(define-condition destruction-interrupt (interrupt) ())
+
+(defmethod perform-interrupt ((interrupt destruction-interrupt))
+  (abort-thread))
+
+(define-condition call-interrupt (interrupt)
+  ((%function :initarg :function :reader call-interrupt-function)))
+
+(defmethod perform-interrupt ((interrupt call-interrupt))
+  (funcall (call-interrupt-function interrupt)))
+
+(define-condition simple-interrupt (interrupt simple-condition) ())
+
+(defmethod perform-interrupt ((interrupt simple-interrupt)))

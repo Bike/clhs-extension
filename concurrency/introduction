@@ -1,0 +1,7 @@
+Concurrency constructs leave the order of some evaluations unspecified, allowing the implementation to order them as they see fit. In some situations it may be possible to perform multiple evaluations simultaneously. This can greatly improve the performance and capabilities of programs, but complicates their semantics.
+
+Concurrency in Lisp is expressed via "threads". Each thread proceeds as though it was performing an ordered sequence of evaluations according to the usual rules specified in Section 3.1.2 (The Evaluation Model). The order evaluations in different threads take place in, however, is unspecified, unless controlled by what are called synchronization operations, also described in this chapter.
+
+It is important to note that, without the presence of synchronization operations, the implementation is only constrained as to the evaluation order within a thread. This means that without synchronization, conforming code cannot rely on side effects in another thread happening in any order, including the order that seems clear from the program text.
+
+Concurrency is explained more formally in the remainder of this section.

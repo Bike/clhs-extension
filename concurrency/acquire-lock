@@ -1,0 +1,31 @@
+Function ACQUIRE-LOCK
+
+Syntax:
+
+  acquire-lock lock &key wait => success
+
+Arguments and Values:
+
+  lock - a lock.
+  wait - a generalized boolean. Default is false.
+  success - a generalized boolean.
+
+Description:
+
+  Attempts to acquire the lock for the current thread.
+
+  If the lock is held and wait is false, returns false. If the lock is held by
+  another thread and wait is true, waits for the lock to be released, acquires
+  it, and then returns true.
+
+  The lock release immediately prior to a lock acquisition in the lock's
+  modification order, if there is one, synchronizes-with the lock acquisition.
+  [Since these terms are used in multiple places, "lock release" and "lock
+   acquisition" may warrant glossary entries.]
+
+  The consequences are undefined if wait is true and the lock is held by the
+  current thread.
+
+See Also:
+
+  WITH-LOCK-HELD, RELEASE-LOCK

@@ -1,0 +1,13 @@
+System Class THREAD
+
+Class Precedence List:
+
+  thread, t
+
+Description:
+
+  A thread is an object that represents a thread of execution.
+
+See Also:
+
+  MAKE-THREAD, Section NN.2 (Threads)

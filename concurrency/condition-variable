@@ -1,0 +1,14 @@
+System Class CONDITION-VARIABLE
+
+Class Precedence List:
+
+  condition-variable, t
+
+Description:
+
+  Condition variables are a concurrency mechanism allowing threads to wait for
+  some condition to be made true by other threads before they proceed.
+
+See Also:
+
+  MAKE-CONDITION-VARIABLE, CONDITION-WAIT, CONDITION-NOTIFY, CONDITION-BROADCAST

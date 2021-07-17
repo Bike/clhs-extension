@@ -1,0 +1,18 @@
+Function MAKE-CONDITION-VARIABLE
+
+Syntax:
+
+  make-condition-variable &key name => condition-variable
+
+Arguments and Values:
+
+  name - a symbol.
+  condition-variable - a condition variable.
+
+Description:
+
+  Creates a fresh condition variable for use with CONDITION-WAIT etc.
+
+Exceptional Situations:
+
+  None.

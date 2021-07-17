@@ -1,0 +1,25 @@
+Function THREAD-ALIVE-P
+
+Syntax:
+
+  thread-alive-p thread => alivep
+
+Arguments and Values:
+
+  thread - a thread.
+  alivep - a generalized boolean.
+
+Description:
+
+  Checks whether the given thread is alive, i.e. has not finished.
+
+  The final evaluation in the thread synchronizes-with any call to this function
+  on the thread returning true.
+
+  [If it is possible to create but not start threads, this would require a
+   little rewriting. Several implementations support that, but I don't
+   understand the value.]
+
+See Also:
+
+  JOIN-THREAD

@@ -1,0 +1,36 @@
+Macro WITH-LOCK-HELD
+
+Syntax:
+
+  with-lock-held (lock &key) form* => value*
+
+Arguments and Values:
+
+  lock - a lock; evaluated.
+  forms - an implicit progn.
+  values - the values returned by the forms.
+
+Description:
+
+  Evaluates the forms while the lock is held by the current thread.
+  In more detail, the lock is acquired as if by ACQUIRE-LOCK with wait = NIL,
+  and then the body is evaluated as an implicit progn. When control leaves the
+  body, either normally or abnormally, the lock is released as if by
+  RELEASE-LOCK. The values returned by the forms are returned from
+  WITH-LOCK-HELD.
+
+  [bordeaux threads additionally notes that if the debugger is entered, it is
+   unspecified whether the lock is released when the debugger is entered or
+   exited or what, but this is not mentioned by WITH-OPEN-FILE, and I think it's
+   a straightforward consequence of how INVOKE-DEBUGGER works.]
+
+  The lock acquisition and release may synchronize-with other lock acquisitions
+  and releases, as described in NN.2.1 (Semantics of Locks).
+
+Exceptional Situations:
+
+  An error of type TYPE-ERROR should be signaled if lock is not a LOCK.
+
+See Also:
+
+  ACQUIRE-LOCK, RELEASE-LOCK

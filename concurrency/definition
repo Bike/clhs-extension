@@ -1,0 +1,21 @@
+The normal evaluation rules in Section 3.1.2 (The Evaluation Model) define the order evaluations occur in in a non-concurrent program. For example, in (PROGN FORM1 FORM2), any evaluation of FORM1 takes place before that of FORM2. In general, the evaluation order is not totally fixed by the program text. For example, evaluation of a function body may proceed in different ways depending on the inputs to the function, and function bodies may be evaluated multiple times although they only appear in the source code once. If the progn form is evaluated multiple times, an evaluation of form2 may take place before an evaluation of form1. As such the non-concurrent evaluation order rules in Section 3.1.2, and the concurrent order rules described here, constrain, but do not totally fix the evaluation order of any execution of a program.
+
+We formalize this notion of evaluation order as follows.
+
+An evaluation A in one thread is sequenced-before another evaluation B in the same thread if A must occur before B according to the usual evaluation rules. The sequenced-before relation between evaluations is antisymmetric and transitive: if A is sequenced-before B, B is not sequenced-before A. If A is sequenced-before B and B is sequenced-before C, A is sequenced-before C.
+
+An evaluation in one thread may synchronize-with an evaluation in another thread. The synchronize-with ordering is also antisymmetric and transitive. Operations that may induce a synchronize-with ordering are called synchronization operations. The most important synchronization operations are as follows:
+
+* Release operations, such as release-lock, may synchronize-with acquisition operations, such as acquire-lock, that refer to the same object. Acquisition and release operations are explained in more detail in Section NN.3 (Locks) [and Section NN.5 (Atomic Operations)].
+* make-thread synchronizes-with the first evaluation in the thread it creates.
+* The final evaluation in a thread synchronizes-with all join-thread calls on that thread returning, as well as any thread-alive-p calls on that thread that return false.
+
+A third antisymmetric and transitive relation between evaluations is the happens-before ordering. An evaluation A happens-before another evaluation B if A is sequenced-before B, or A is synchronized-with B, or there is a third evaluation C such that A happens-before C and C happens-before B.
+
+The happens-before relation defines which evaluations occur before others in the intuitive sense. In a program that does not use concurrency, all evaluations must occur in one well defined order, as for any two evaluations, one is sequenced-before (and therefore happens-before) the other. In a program that does use concurrency, two evaluations may not have any necessary happens-before relation between them.
+
+If an evaluation A does not happen before another evaluation B, and B does not happen before A, the evaluations are unordered. The side effects (e.g. writes to places) performed by A may not be visible to B, or may appear partially completed, or may appear incoherently. For the case of writes to places, the visible effects may be constrained, as described in Section NN.1.2 (Conflicts and Data Races). Because of the unusual effects, if A is affected by the side effects of B or vice versa, it is usually prudent to ensure that one happens-before the other.
+
+NN.1.2.1 Reordering
+
+NN.1.2.2 Sequential Consistency

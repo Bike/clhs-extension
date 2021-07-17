@@ -1,0 +1,36 @@
+Function CONDITION-WAIT
+
+Syntax:
+
+  condition-wait condition-variable lock &key => implementation-dependent
+
+Arguments and Values:
+
+  condition-variable - a condition variable.
+  lock - a lock.
+
+Description:
+
+  Releases the lock (as by RELEASE-LOCK) and blocks the current thread on the
+  condition variable. If the thread is later unblocked, the lock is reacquired
+  (as by ACQUIRE-LOCK with wait = false), and finally CONDITION-WAIT returns.
+
+  A thread blocked on a condition variable can be unblocked with the use of the
+  functions CONDITION-NOTIFY or CONDITION-BROADCAST. Additionally, spurious
+  unblocking can occur at any time. Implementations are encouraged to reduce
+  spurious unblocking as much as is practical.
+
+  The consequences are undefined if lock is not held by the current thread. The
+  consequences are undefined if, at the time CONDITION-WAIT is called, other
+  threads are blocking on the condition variable, but used different locks for
+  their CONDITION-WAIT calls.
+
+See Also:
+
+  CONDITION-VARIABLE, CONDITION-NOTIFY, CONDITION-WAIT, Section NN.4.1
+  (Semantics of Condition Variables).
+
+Notes:
+
+  Implementations must be careful to ensure that the lock release and blocking
+  take place atomically, to avoid a "lost wakeup" problem.

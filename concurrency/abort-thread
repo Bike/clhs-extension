@@ -1,0 +1,47 @@
+Function ABORT-THREAD
+
+Syntax:
+
+  abort-thread &key condition =>|
+
+Arguments and Values:
+
+  condition - a condition.
+
+Description:
+
+  Aborts the current thread abnormally. No further evaluations will be carried
+  out in the current thread. Calls to JOIN-THREAD on this thread will signal an
+  error.
+
+  The condition, if provided, will be associated with ABNORMAL-EXIT conditions
+  signaled by JOIN-THREAD.
+
+  Calls to this function synchronize-with calls to JOIN-THREAD on this thread
+  signaling ABNORMAL-EXIT conditions.
+
+  Aborting a thread effectively transfers control to a point "outside" the
+  thread. The process described in Section 5.2 (Transfer of Control to an Exit
+  Point) takes place, only the "exit point" being "transferred to" is outside
+  of any local dynamic environment. This means, particularly, that
+
+  * It is not valid to transfer to intervening exit points. Since there are no
+    other exit points, this means that an abort cannot be caught or prevented
+    once it has been triggered.
+  * Any unwind-protect cleanup clauses in the dynamic environment are executed
+    in the opposite order of their establishment.
+  * Bindings of special variables, catch tags, condition handlers, and restarts
+    are undone in the opposite order of their establishment.
+
+  [Might want to define a notion of "main thread" or "initial thread" and make
+   it undefined or an error to abort it? But then, what if there are multiple
+   initial threads, or there is no main thread?
+
+   The idea of thread abortion should maybe be defined elsewhere, so that
+   ABORT-THREAD is just the public facing use of it, and implementations can
+   abort threads in other cirumstances.]
+
+Exceptional Situations:
+
+  An error of type TYPE-ERROR should be signaled if condition is not a
+  CONDITION.

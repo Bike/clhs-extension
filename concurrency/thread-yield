@@ -1,0 +1,15 @@
+Function THREAD-YIELD
+
+Syntax:
+
+  thread-yield <no arguments> => implementation-dependent
+
+Arguments and Values:
+
+  None.
+
+Description:
+
+  Hint to the implementation that the current thread can be descheduled, i.e.
+  that this thread is low-priority compared to other threads. Whether this hint
+  is actually acted on, and how if so, is implementation-defined.
