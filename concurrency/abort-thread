@@ -26,7 +26,7 @@ Description:
   of any local dynamic environment. This means, particularly, that
 
   * It is not valid to transfer to intervening exit points. Since there are no
-    other exit points, this means that an abort cannot be caught or prevented
+    other exit points, this means that an abort cannot be caught or rejected
     once it has been triggered.
   * Any unwind-protect cleanup clauses in the dynamic environment are executed
     in the opposite order of their establishment.
