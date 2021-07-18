@@ -6,7 +6,7 @@ Syntax:
 
 Arguments and Values:
 
-  condition - a condition.
+  condition - a condition or NIL.
 
 Description:
 
@@ -14,8 +14,8 @@ Description:
   out in the current thread. Calls to JOIN-THREAD on this thread will signal an
   error.
 
-  The condition, if provided, will be associated with ABNORMAL-EXIT conditions
-  signaled by JOIN-THREAD.
+  The condition, if provided and not NIL, will be associated with ABNORMAL-EXIT
+  conditions signaled by JOIN-THREAD.
 
   Calls to this function synchronize-with calls to JOIN-THREAD on this thread
   signaling ABNORMAL-EXIT conditions.
@@ -44,4 +44,4 @@ Description:
 Exceptional Situations:
 
   An error of type TYPE-ERROR should be signaled if condition is not a
-  CONDITION.
+  CONDITION or NIL.

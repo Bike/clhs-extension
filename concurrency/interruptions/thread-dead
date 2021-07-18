@@ -1,0 +1,10 @@
+Condition Type THREAD-DEAD
+
+Class Precedence List:
+
+  THREAD-DEAD, THREAD-ERROR, ERROR, CONDITION, T
+
+Description:
+
+  An error of type THREAD-DEAD is signaled when an attempt is made to interrupt
+  a thread that has already completed execution.

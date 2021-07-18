@@ -1,0 +1,16 @@
+Condition Type ABNORMAL-EXIT
+
+Class Precedence List:
+
+  ABNORMAL-EXIT, THREAD-ERROR, ERROR, CONDITION, T
+
+Description:
+
+  An error of type ABNORMAL-EXIT is signaled when THREAD-JOIN is called on a
+  thread that ended abnormally. The ABNORMAL-EXIT can be initialized with a
+  condition that precipitated the abort with the initarg :CONDITION, and this
+  condition can be read by the function ABNORMAL-EXIT-CONDITION.
+
+See Also:
+
+  ABNORMAL-EXIT-CONDITION

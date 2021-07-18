@@ -2,7 +2,7 @@ Standard Generic Function SERVICE-INTERRUPT
 
 Syntax:
 
-  service-interrupt interrupt => value*
+  service-interrupt interrupt => implementation-dependent
 
 Method Signatures:
 
@@ -17,20 +17,22 @@ Arguments and Values:
 
 Description:
 
-  Performs the interrupt's associated action. What values are returned is
-  dependent on which method is invoked.
+  Performs the interrupt's associated action.
 
   The method on DESTRUCTION-INTERRUPT effectively calls ABORT-THREAD with the
   interrupt as its condition. This ends the thread, so control does not return
   from SERVICE-INTERRUPT.
 
   The method on CALL-INTERRUPT calls the function associated with the interrupt
-  with no arguments, and returns the values it returns.
+  with no arguments.
 
   The method on INTERACTIVE-INTERRUPT works similarly to BREAK. The method
   effectively calls INVOKE-DEBUGGER on the interrupt. If the CONTINUE restart
   is used while in the debugger, SERVICE-INTERRUPT immediately returns NIL.
   *DEBUGGER-HOOK* is bound to NIL before the debugger is entered.
+
+  SERVICE-INTERRUPT is called from SIGNAL-PENDING-INTERRUPTS. It is not intended
+  to be called by programmers, but they may define methods for it.
 
 Side Effects:
 
