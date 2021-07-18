@@ -1,0 +1,33 @@
+Macro WITHOUT-INTERRUPTS
+
+Syntax:
+
+  without-interrupts forms => values
+
+Arguments and Values:
+
+  forms - an implicit progn.
+  values - the values returned by the forms.
+
+Description:
+
+  Evaluates the forms in an implicit progn and returns their values. Within the
+  dynamic extent of the WITHOUT-INTERRUPTS form, any signaled interrupts are
+  deferred (unless there is an alternate handler bound more specifically).
+
+  Furthermore, code in the body is processed as if it was declared
+  (INTERRUPTIBLE 0).
+
+Notes:
+
+  WITHOUT-INTERRUPTS could be defined by:
+
+  (defmacro without-interrupts (&body body)
+    `(locally (declare (interruptible 0))
+       (handler-bind ((interrupt #'defer-interrupt))
+         ,@body)))
+
+  An alternate implementation would be to have SIGNAL-PENDING-INTERRUPTS check
+  a flag and do nothing if it is not set, and have WITHOUT-INTERRUPTS set this
+  flag. This would only be valid if HANDLER-BIND forms that potentially handled
+  interrupts unset the flag.

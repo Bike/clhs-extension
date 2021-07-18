@@ -1,0 +1,40 @@
+An interrupt is an asynchronous request to a thread to perform some
+action. Interrupts are of condition type INTERRUPT.
+
+Interrupts may be issued by to a thread with the function
+INTERRUPT-THREAD, or by the implementation, at implementation-defined
+points. In either case, the interrupt is an INTERRUPT object, which is
+placed on a thread's pending interrupts list. These INTERRUPT objects
+may be signaled by certain operators, effectively by calling the
+SIGNAL-PENDING-INTERRUPTS function. See Section NN.# (Implicit Interrupt
+Processing) for details on when this can happen.
+
+The thread may then respond to the request in three ways:
+
+Defer: The thread can defer action by invoking the DEFER-INTERRUPT restart, or
+by performing a non-local transfer of control. The interrupt remains on the
+thread's pending interrupt list, and will be signaled again by subsequent calls
+to SIGNAL-PENDING-INTERRUPTS.
+
+Reject: The thread can reject the interrupt by invoking the REJECT-INTERRUPT
+restart. The interrupt is removed from the thread's pending interrupt list.
+
+Service: If an interrupt is neither deferred nor rejected, it is serviced by
+calling SERVICE-INTERRUPT on it. The interrupt's action will be performed; what
+this action is is specific to the type of interrupt. [Should a restart be added
+so that a handler can overrule any higher level handlers that might want to
+defer or reject an interrupt?]
+
+[Possible: Add INTERRUPT-STATUS that allows a thread to see what happened to
+ an interrupt it put on another thread. Similarly, allow REJECT-INTERRUPT to
+ have a reason supplied, and make this reason accessible via
+ INTERRUPT-REJECTION-REASON or something. This is why INTERRUPT-THREAD returns
+ the interrupt.]
+
+Programmers should ensure that their code is prepared to deal with interrupts,
+for example by deferring them during sensitive operations. Programmers should
+ensure that long-running code in threads regularly checks for interrupts (by
+SIGNAL-PENDING-INTERRUPTS) and services them when it is safe to do so, so that
+interruption can be carried out successfully.
+
+NN.# Implicit Interrupt Processing

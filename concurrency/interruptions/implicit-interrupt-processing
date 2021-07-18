@@ -1,0 +1,31 @@
+A program can force pending interrupts to be signaled by calling
+SIGNAL-PENDING-INTERRUPTS, but interrupt processing can occur in other contexts
+as well. Three cases are required:
+
+* When execution of a thread has temporarily ceased due to SLEEP.
+* When a thread is blocking on a condition variable due to CONDITION-WAIT.
+* When a thread is waiting for another thread to finish due to THREAD-JOIN.
+
+This means that if a thread is in one of these three situations, interrupts are
+processed when they are received - before the blocked/waiting function has
+returned. Portable programs may rely on this behavior. Interrupt processing
+takes place as if SIGNAL-PENDING-INTERRUPTS was called.
+
+If a thread blocking on a condition variable is interrupted, and a handler
+performs a non-local transfer of control (including by ABORT-THREAD), the thread
+is removed from the condition variable's blocking set. This means that a
+notification to a condition variable cannot be lost due to interruption - some
+other thread receives the notification and is removed from the wait set instead.
+[Text should probably be under CONDITION-VARIABLE-WAIT.]
+
+Implementations are permitted to define other situations in which interrupt
+processing implicitly occurs.
+
+[I kind of want to put in a note that the program state must be coherent during
+any implicit processing, e.g. reordering (setq x 0 y 0) to (setq y 0 x 0) and
+then processing interrupts in the middle would not be okay if a handler could
+refer to x and y, but I think that is implied by the rest of the semantics, and
+common sense, and I can't think of a good way to phrase it.]
+
+Programmers may hint to the implementation that implicit processing should be
+inserted by using the INTERRUPTIBLE declaration.

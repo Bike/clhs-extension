@@ -1,0 +1,10 @@
+Restart DEFER-INTERRUPT
+
+Data Arguments Required:
+
+  None.
+
+Description:
+
+  The DEFER-INTERRUPT restart can be invoked by a handler to communicate that
+  the given interrupt should not be serviced at that time.

@@ -1,0 +1,9 @@
+Condition Type INTERRUPT
+
+Class Precedence List:
+
+  INTERRUPT, CONDITION, T
+
+Description:
+
+  All types of interrupts must inherit from this type.

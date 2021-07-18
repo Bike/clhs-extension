@@ -1,0 +1,35 @@
+Function INTERRUPT-THREAD
+
+Syntax:
+
+  interrupt-thread thread &optional datum &rest arguments => interrupt
+
+Arguments and Values:
+
+  thread - a thread.
+  datum, arguments - designators for a condition of default type
+                     SIMPLE-INTERRUPT.
+  interrupt - an interrupt.
+
+Description:
+
+  Adds the designated INTERRUPT to the thread's pending interrupt list. Returns
+  the interrupt.
+
+  Calls to INTERRUPT-THREAD synchronize-with calls to SIGNAL-PENDING-INTERRUPTS
+  in the thread that signal the designated interrupt. [Technically I think an
+  implementation could be very slightly more efficiently by skipping this, but
+  that seems needlessly confusing.]
+
+  Conforming code must ensure that the same interrupt object is not used to
+  interrupt multiple threads, or to interrupt the same thread more than once.
+  [This condition is in place so that a thread can use DELETE or something...
+   which is a dumb reason, so maybe this should be removed. Alternately so that
+   an interrupt's rejection status can be stored in the thread itself? If there
+   is an interrupt status that would get weird with multiply used interruptions
+   regardless.]
+
+Exceptional Situations:
+
+  If the designated condition is not of type INTERRUPT, an error of type
+  TYPE-ERROR is signaled.

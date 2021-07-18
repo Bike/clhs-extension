@@ -1,0 +1,67 @@
+Function SIGNAL-PENDING-INTERRUPTS
+
+Syntax:
+
+  signal-pending-interrupts <no arguments> => nil
+
+Arguments and Values:
+
+  None.
+
+Description:
+
+  Signals all interrupts on the current thread's pending interrupts list, in
+  the order the interrupts were received. Signaling is done as if by SIGNAL.
+
+  SIGNAL-PENDING-INTERRUPTS is effectively called during successful calls to the
+  standard functions SLEEP, THREAD-JOIN, CONDITION-WAIT, and any others defined
+  to do so by the implementation.
+
+  The restarts REJECT-INTERRUPT and DEFER-INTERRUPT are established around the
+  signaling. If the REJECT-INTERRUPT restart is invoked or a handler performs
+  a non-local transfer of control, the interrupt is removed from the pending
+  interrupts list. If neither restart is invoked and there is no non-local
+  transfer of control from a handler, the interrupt is removed from the pending
+  interrupts list, and then SERVICE-INTERRUPT is called on the interrupt.
+
+  If an interrupt is received while SIGNAL-PENDING-INTERRUPTS is processing an
+  interrupt, the new interrupt is placed on the pending interrupts list, rather
+  than being signaled immediatedly. It will then be processed later in the same
+  call to SIGNAL-PENDING-INTERRUPTS. In other words, interrupt handlers and
+  type tests may rely on the fact that they will not themselves be interrupted.
+  This is important for deferment to be possible, because without this rule an
+  interrupt handler could be interrupted before it could properly defer the
+  interrupt. [If there was a way to actively force an interrupt to be serviced,
+  handlers could allow that to happen if they wanted to, like SA_NODEFER in
+  POSIX.]
+
+  A thread being sent an interrupt synchronizes-with any
+  SIGNAL-PENDING-INTERRUPTS calls that signal that interrupt.
+
+Side Effects:
+
+  The debugger might be entered due to *BREAK-ON-SIGNALS*.
+
+  Handlers for any INTERRUPT being signaled might transfer control.
+
+Affected By:
+
+  Existing handler bindings. *BREAK-ON-SIGNALS*.
+
+Exceptional Situations:
+
+  None.
+
+See Also:
+
+  *BREAK-ON-SIGNALS*, Section NN.# (Interruption)
+
+Notes:
+
+  If (typep interrupt *break-on-signals*) yields true for some
+  interrupt, the debugger is entered prior to beginning the signaling
+  process for that interrupt. The CONTINUE restart can be used to
+  continue the process.
+
+  [I kind of want to rename this PROCESS-INTERRUPTS so i can just define
+   "process interrupts" and say that everywhere.]

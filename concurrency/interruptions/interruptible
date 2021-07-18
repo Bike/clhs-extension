@@ -1,0 +1,35 @@
+Declaration INTERRUPTIBLE
+
+Syntax:
+
+  (interruptible [value])
+
+Arguments:
+
+  value - one of the integers 0, 1, 2, or 3.
+
+Valid Context:
+
+  declaration or proclamation
+
+Binding Types Affected:
+
+  None.
+
+Description:
+
+  Hints to the implementation the extent to which implicit interrupt processing
+  should occur. 0 means as little processing as possible should be done, and 3
+  means as much as possible. This hint may be ignored.
+
+  For example, a compiler given (INTERRUPTIBLE 3) could decide to insert
+  implicit processing at the tops of loops and whenever a lock acquisition is
+  attempted.
+
+  Declaring (INTERRUPTIBLE 0) does not prevent any interrupt processing from
+  occurring, and in particular, SLEEP, CONDITION-WAIT, and THREAD-JOIN must
+  process interrupts regardless. For code to be actually uninterruptible,
+  interrupt processing must be dynamically deferred, as by WITHOUT-INTERRUPTS.
+
+  [This could be an optimize quality, but I'm not sure a one-line description
+  suffices.]
