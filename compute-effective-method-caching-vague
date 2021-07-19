@@ -64,7 +64,7 @@ Proposal (COMPUTE-EFFECTIVE-METHOD-CACHING-VAGUE:BASIC):
 Proposal (COMPUTE-EFFECTIVE-METHOD-CACHING-VAGUE:DYNAMIC):
 
   Add a caching protocol for effective methods analogous to that for
-  COMPUTE-APPLICABLE-METHODS-USING-CACHES to the generic function invocation
+  COMPUTE-APPLICABLE-METHODS-USING-CLASSES to the generic function invocation
   protocol:
 
   "The discriminating function is permitted to memoize the first two return
