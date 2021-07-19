@@ -1,0 +1,15 @@
+Condition Type THREAD-ERROR
+
+Class Precedence List:
+
+  THREAD-ERROR, ERROR, CONDITION, T
+
+Description:
+
+  All conditions related to threads are of type THREAD-ERROR. The initarg
+  :THREAD initializes the condition with the thread at issue, which can be
+  later read by the function THREAD-ERROR-THREAD.
+
+See Also:
+
+  THREAD-ERROR-THREAD

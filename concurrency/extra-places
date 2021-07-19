@@ -1,0 +1,39 @@
+Some "places" exist for the purpose of conflict analysis even if they are not
+actually accessible with SETF. Some operators are considered for the purpose of
+conflict analysis to access places. These are all as follows:
+
+* An object's class: Readable by CLASS-OF, TYPE-OF, TYPEP,
+  generic function dispatch. Writable by CHANGE-CLASS.
+* An object's slots: accessible by slot access functions, SLOT-VALUE,
+  SLOT-VALUE-USING-CLASS, SLOT-BOUNDP, SLOT-MAKUNBOUND, SLOT-BOUNDP-USING-CLASS,
+  SLOT-MAKUNBOUND-USING-CLASS, STANDARD-INSTANCE-ACCESS,
+  FUNCALLABLE-STANDARD-INSTANCE-ACCESS, UPDATE-INSTANCE-FOR-REDEFINED-CLASS,
+  INITIALIZE-INSTANCE, UPDATE-INSTANCE-FOR-DIFFERENT-CLASS, CHANGE-CLASS,
+  SHARED-INITIALIZE.
+* A generic function's methods: Writable by initialization, reinitialization,
+  GENERIC-FUNCTION-METHODS, ADD-METHOD, REMOVE-METHOD. Readable by
+  COMPUTE-APPLICABLE-METHODS(-USING-CLASSES), which implies that they can be
+  read during generic function dispatch.
+* A funcallable instance's function: Read by calling it, written by
+  SET-FUNCALLABLE-INSTANCE-FUNCTION.
+* A symbol's package: Read by SYMBOL-PACKAGE, can be written by some uses of
+  IMPORT or UNINTERN.
+* A package's name: Read by PACKAGE-NAME, FIND-PACKAGE. Written by
+  RENAME-PACKAGE.
+* A package's nicknames: Read by PACKAGE-NICKNAMES, FIND-PACKAGE. Written by
+  RENAME-PACKAGE.
+* ...
+* Internals of a RANDOM-STATE are read by RANDOM, and uses of MAKE-RANDOM-STATE
+  that copy. They are written by RANDOM. Note that this implies that uses of
+  RANDOM on the same state that are not adequately synchronized may cause data
+  races.
+* ARRAY-DIMENSION, ARRAY-DIMENSIONS, ARRAY-HAS-FILL-POINTER-P,
+  ARRAY-DISPLACEMENT, ARRAY-RANK, ARRAY-TOTAL-SIZE are all implicit places that
+  can be written by ADJUST-ARRAY if the array is actually adjustable.
+  ADJUST-ARRAY additionally writes every element of the array, for the purpose
+  of conflict analysis.
+* REMHASH is considered a write of the entry for one key in a hash table.
+  CLRHASH is considered a write of all entries.
+* Anything else defined by the implementation.
+
+[atomics: Implementations are free to define some or all of the accesses above as atomic, removing the possibility of data races. Implementations may also define certain patterns that would be considered conflicts by this standard to not conflict; for example, an implementation could define that writes to LDB places with the same underlying place will not conflict as long as the byte specifiers do not overlap.]

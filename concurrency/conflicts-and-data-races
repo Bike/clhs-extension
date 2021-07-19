@@ -1,0 +1,38 @@
+For the purposes of this section, a "write" of a place is the evaluation of its setf expansion's storing form, and a "read" is the evaluation of its accessing form. Evaluation of subforms can be analyzed separately. Binding a variable (or other place, if this is supported) is considered to write its initial value.
+
+For the purposes of this section, places can be simple or compound. A simple place is one of the following:
+
+* a lexical or special variable.
+* a function call form for one of the functions: AREF, BIT, CAR, CDR, CHAR, COMPILER-MACRO-FUNCTION, FDEFINITION, FILL-POINTER, FIND-CLASS, FIRST, GETHASH, LOGICAL-PATHNAME-TRANSLATIONS, MACRO-FUNCTION, READTABLE-CASE, REST, ROW-MAJOR-AREF, SBIT, SCHAR, SLOT-VALUE, SVREF, SYMBOL-FUNCTION, SYMBOL-PLIST, SYMBOL-VALUE.
+* function call form for one of the functions: STANDARD-INSTANCE-ACCESS, FUNCALLABLE-STANDARD-INSTANCE-ACCESS
+* the places accessed by the standard methods on CLASS-NAME, DOCUMENTATION, or SLOT-VALUE-USING-CLASS.
+* a function call form where the function is a defstruct slot accessor.
+* an APPLY place where the function is one of the above functions.
+
+[atomics: Note that a place being simple does not necessarily imply that it can be accessed atomically[2].]
+
+If two evaluations access the same place and at least one of the evaluations writes to the place, the evaluations are said to conflict. Conflicting accesses to a simple place form a data race unless either one happens-before the other[atomics: , or both accesses are atomic[2]]. If a program has a data race, its behavior is undefined.
+
+[atomics: Note that some (but not all) simple places are always accessed atomically: see NN.5.4.]
+
+A compound place is any place that is not simple. Compound places are those that can be analyzed as being composed of multiple accesses of simple places by looking at their setf expansions. Conflicting accesses to compound places have defined behavior provided there are no conflicting accesses to the underlying simple places: they behave as though they were made up of the underlying simple accesses.
+
+Compound places can be analyzed as follows:
+
+* CAAR etc., SECOND etc., and NTH may read the appropriate cdrs of the list, and write the one car.
+* ELT on a cons works as an NTH place, and on a vector as an AREF place (i.e. an ELT write performs one simple write).
+* GET may read the property list and any number of cars or cdrs of that list, and write either the property list or a car of the list.
+* SUBSEQ writes the relevant sequence positions as by ELT.
+* LDB, MASK-FIELD, and GETF operate as decribed in 5.1.2.2.
+* User-defined function call places perform a call to the appropriate setf function.
+* For other places, the equivalences in 5.1.2 and 5.1.1.2 apply.
+
+Some operations may cause conflicts (and therefore possibly data races) despite not operating on places directly. Not all of these cases are enumerated here, because by the definitions of those operations it should be clear what writes and reads they perform. For example, rplaca writes the car of a cons, search reads the elements of its sequence arguments, and a loop for-as-across can read the array's dimensions and its elements.
+
+Implementations may define some simple places as compound, in which case they must document which simple places are accessed. They may not define places listed here as compound as simple.
+
+Data races can be avoided in concurrent programs by the use for example of locks (NN.3)[atomics: or atomic operations (NN.5)].
+
+[This is really, really vague. Good semantics would probably need some formal contract stuff - like DEFUN writes the FDEFINITION, that kind of thing. There are also many implicit places that are hard to describe and which probably work differently in different implementations. For example, does proclaiming a function's ftype write to the function? Does it write to some environmental "ftype" slot? Does that conflict with using the compiler? What if it writes to a store of all ftypes, thereby conflicting with any read of an ftype, even for a different function?]
+
+NN.1.# Interference Conflicts

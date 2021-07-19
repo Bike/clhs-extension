@@ -1,0 +1,28 @@
+Macro ATOMIC-UPDATE, ATOMIC-UPDATE-EXPLICIT
+
+  atomic-update (place &key order &allow-other-keys) update-fn &rest arguments
+    => new-value
+  atomic-update-explicit place update-fn &rest arguments => success, present
+
+Arguments and Values:
+
+  place - a place with an atomic expansion.
+  order - an atomic ordering specifier. Default is :sequentially-consistent.
+  update-fn - a designator for a function that accepts as many arguments as are
+              provided, plus one.
+  argument - an object.
+  new-value - an object.
+
+Description:
+
+  Performs an arbitrary atomic read-modify-write operation on place. First, the
+  subforms of place, the update-fn, and the arguments are evaluated, in that
+  order. Second, the value of place is read atomically, with the given
+  parameters in atomic-update-explicit. Third, update-fn is called as by (apply
+  update-fn placeval arguments), placeval being the value read from the place.
+  Finally, the primary value of this call is written into the place, and
+  returned from the form.
+
+  It is permissible for an implementation to read from the place multiple times,
+  and to call update-fn multiple times, e.g. in a compare-and-swap loop; however
+  place's subforms, update-fn, and the arguments may be evaluated at most once.

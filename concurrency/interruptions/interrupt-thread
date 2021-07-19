@@ -29,6 +29,9 @@ Description:
    is an interrupt status that would get weird with multiply used interruptions
    regardless.]
 
+  A thread may interrupt itself. This does not behave differently from any
+  other interruption, except that no synchronization is necessary.
+
 Exceptional Situations:
 
   If the designated condition is not of type INTERRUPT, an error of type

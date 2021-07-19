@@ -1,0 +1,21 @@
+Relaxed ordering guarantees a modification order for a place that is the same
+between all threads. This means that, given that W1 and W2 are writes, and R1
+and R2 are reads, the following guarantees are in place:
+
+* Write-write coherence: If W1 happens-before W2, W1 is prior to W2 in the
+  modification order.
+* Read-read coherence: If W1 is the write for R1, and R1 happens-before R2,
+  R2's write is either W1, or some write W2 such that W1 happens-before W2.
+* Read-write coherence: If R1 happens-before W1, R1's write happens-before W1.
+* Write-read coherence: If W1 happens-before R1, either R1's write is W1, or
+  W1 happens-before R1's write.
+
+Note that the modification orders for different places are not guaranteed to be
+coherent, and in general will not be. For example, if R1 and R2 are relaxed
+reads of different places, R2's write W2 could happen-before R1's write W1 even
+if R1 happens-before R2. As such, relaxed accesses cannot be used for
+synchronization.
+
+Relaxed ordering is intended to provide a basic coherence guarantee. It is
+suitable for applications such as shared counters, in which side effects other
+than counter increments are irrelevant to the incrementing threads.

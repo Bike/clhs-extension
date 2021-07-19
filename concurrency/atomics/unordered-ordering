@@ -1,0 +1,18 @@
+Unordered ordering is the weakest atomic ordering available. If the conflict
+between two accesses is governed by the unordered ordering, the only guarantee
+made is that the write corresponding to a read is consistent with the
+happens-before ordering. In more detail, if R is the read and W the write:
+
+* R does not happen-before W.
+* There is no other write W2 such that W happens-before W2 and W2 happens-before
+  R. That is, if there was a definite intervening write, it must be respected.
+
+Unordered ordering is only suitable as a definability guarantee. Unordered
+atomic accesses are not synchronization operations. It is not guaranteed that
+there is a coherent modification order shared by all threads: Some threads may
+"see" a different sequence of writes than others.
+
+Because there is no global modification order, an unordered read-modify-write
+operation is not different from a read followed by a write. Implementations may
+choose to issue a style warning if a read-modify-write operation is present in
+code they process.

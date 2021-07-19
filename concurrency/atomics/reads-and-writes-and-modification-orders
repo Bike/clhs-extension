@@ -1,0 +1,21 @@
+Conflicting atomic accesses to the same place do not entail a data race, even if
+there neither happens-before the other. To understand the semantics of this, we
+need to introduce the concept of the "write of a read". Whenever a place is read
+and that read has defined behavior, the value read must have been written by
+some write operation to that place. We call this the write for that read.
+Programs often leave the write of a read partially undefined, i.e. for a given
+read in the program text, there can be multiple writes. But in any particular
+execution of a program, each read evaluated has one corresponding write. Any
+write, similarly, has zero or more reads, that read the value written.
+
+Atomic accesses with at least "relaxed" ordering (see Section NN.5.# (Atomic
+Ordering)) additionally have a "modification order". This is similar to the
+modification orders for locks and condition variable blocking sets. The
+modification order is the same between all threads. The write for any read is
+the previous write in the modification order.
+
+Unlike the situations with locks or condition variables, a modification order
+does not necessarily imply synchronization. An evaluation being sequenced-before
+a write does not necessarily happen-before a read of that write. This implies
+that, while the modification order for any particular place is identical between
+threads, the modification orders for different places may be incompatible.

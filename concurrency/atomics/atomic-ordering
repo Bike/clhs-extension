@@ -1,0 +1,21 @@
+The ordering of an atomic access defines its behavior when there is a conflict
+with another access. Orderings define various levels of synchronization, and of
+constraints on pairing between reads and writes.
+
+Some orderings are "stronger" than others, in that they have strictly more
+requirements than the "weaker" ordering. In this sense, relaxed is stronger than
+unordered, acquire and release and acquire-release are all stronger than
+relaxed, and sequential consistency is stronger than all the rest.
+
+If two atomic accesses conflict, only the requirements of the weaker ordering
+are necessarily respected.
+
+NN.5.#.# Unordered Ordering
+
+NN.5.#.# Relaxed Ordering
+
+NN.5.#.# Acquire and Release Orderings
+
+NN.5.#.# Acquire-Release Ordering
+
+NN.5.#.# Sequentially Consistent Ordering

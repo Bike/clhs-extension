@@ -1,0 +1,21 @@
+Function CURRENT-THREAD
+
+Syntax:
+
+  current-thread <no arguments> => thread
+
+Arguments and Values:
+
+  thread - the current thread.
+
+Description:
+
+  Returns the thread object representing the current thread of execution.
+
+Side Effects:
+
+  None.
+
+Exceptional Situations:
+
+  None.

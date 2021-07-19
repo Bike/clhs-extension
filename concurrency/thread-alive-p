@@ -14,7 +14,7 @@ Description:
   Checks whether the given thread is alive, i.e. has not finished.
 
   The final evaluation in the thread synchronizes-with any call to this function
-  on the thread returning true.
+  on the thread returning false.
 
   [If it is possible to create but not start threads, this would require a
    little rewriting. Several implementations support that, but I don't
@@ -23,3 +23,11 @@ Description:
 See Also:
 
   JOIN-THREAD
+
+Notes:
+
+  Because calls to this function that return true are not synchronized, a true
+  result may be invalid as soon as it's returned, i.e. the thread could die
+  between THREAD-ALIVE-P determining that it's alive and returning. Conforming
+  code cannot assume a thread other than the current thread is alive unless
+  there is other synchronization.
