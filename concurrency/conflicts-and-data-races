@@ -36,3 +36,5 @@ Data races can be avoided in concurrent programs by the use for example of locks
 [This is really, really vague. Good semantics would probably need some formal contract stuff - like DEFUN writes the FDEFINITION, that kind of thing. There are also many implicit places that are hard to describe and which probably work differently in different implementations. For example, does proclaiming a function's ftype write to the function? Does it write to some environmental "ftype" slot? Does that conflict with using the compiler? What if it writes to a store of all ftypes, thereby conflicting with any read of an ftype, even for a different function?]
 
 NN.1.# Interference Conflicts
+
+NN.1.# Examples of Conflicts and Data Races

@@ -1,0 +1,111 @@
+(progn (setf x 7) x) ; => 7
+;;; The write and the read to x conflict, simply because they access
+;;; the same place. But there is no data race, because the write
+;;; obviously happens before the read (specifically, it is
+;;; sequenced-before the read). So the program is defined.
+
+(defun race ()
+  (let (x)
+    (make-thread (lambda () (setf x 1)))
+    (make-thread (lambda () (setf x 2)))
+    x))
+(race) ; => undefined behavior
+;;; This is a classic data race: the two threads "race" to write X.
+;;; Specifically, they conflict with each other and the read, and all
+;;; three conflicts are data races because there is no synchronization.
+
+(defun race ()
+  (let* (x
+         (thread1 (make-thread (lambda () (setf x 1))))
+         (thread2 (make-thread (lambda () (setf x 2)))))
+    (join-thread thread1) (join-thread thread2)
+    x))
+(race) ; => undefined behavior
+;;; Here some synchronization has been added. The two JOIN-THREAD calls
+;;; ensure that both threads have completed before X is read, so there
+;;; is no data race involving the read. However, the writes in the
+;;; threads are still not synchronized, so the program is undefined.
+
+(defun race ()
+  (let* (x
+         (lock (make-lock))
+         (thread1
+          (make-thread (lambda () (with-lock-held (lock) (setf x 1)))))
+         (thread2
+          (make-thread (lambda () (with-lock-held (lock) (setf x 2))))))
+    (join-thread thread1) (join-thread thread2)
+    x))
+(race) ; => 1 or 2
+;;; Adequate synchronization has finally eliminated all races. The read
+;;; occurs subsequent to both threads' writes, as in the above, and one
+;;; of the writes happens-before the other - because its releasing the
+;;; lock synchronizes-with the other thread acquiring it. It is not
+;;; defined which thread manages to acquire the lock first, however, so
+;;; either 1 or 2 could be returned.
+
+(defun race ()
+  (let* (x (lock (make-lock)))
+    (make-thread (lambda () (with-lock-held (lock) (setf x 1))))
+    (make-thread (lambda () (with-lock-held (lock) (setf x 2))))
+    (with-lock-held (lock) x)))
+(race) ; => 1 or 2 or NIL
+;;; This demonstrates that binding is considered a write for the purpose of
+;;; conflict analysis. While the binding necessarily happens-before both
+;;; threads' writes, there is no guarantee that either thread complete before
+;;; the main thread can acquire the lock to read the value of X; in this
+;;; scenario (race) would return NIL.
+
+(defun race ()
+  (let* (x (lock1 (make-lock)) (lock2 (make-lock)))
+    (make-thread (lambda () (with-lock-held (lock1) (setf x 1))))
+    (make-thread (lambda () (with-lock-held (lock2) (setf x 2))))
+    (with-lock-held (lock1) x)))
+(race) ; => undefined behavior
+;;; No synchronization must occur between operations on different locks, so
+;;; the writes in the threads form a data race, as does the conflict between
+;;; the second thread's write and the main thread's read.
+
+(let ((flag nil)
+      (work1 nil) (work2 nil))
+  (make-thread (lambda () (setf work1 (do-some-work) flag t)))
+  (setf work2 (do-other-work))
+  (loop until flag)
+  (combine-works work1 work2))
+;;; => undefined
+;;; Here the programmer attempts to ensure synchronization with a flag,
+;;; reasoning that the loop will never finish until the flag has been
+;;; set, and that the flag cannot have been set until the first work
+;;; has been completed. However, there is not enough synchronization,
+;;; and in particular the write of the flag in the thread and the reads
+;;; of the flag in the loop form data races. The write and read of work1
+;;; also form a data race. So the behavior of this program is undefined.
+
+(let ((flag nil) (lock (make-lock))
+      (work1 nil) (work2 nil))
+  (make-thread (lambda () (setf work1 (do-some-work))
+                          (with-lock-held (lock) (setf flag t))))
+  (setf work2 (do-other-work))
+  (loop until (with-lock-held (lock) flag))
+  (combine-works work1 work2))
+;;; => defined
+;;; Because flag is only accessed from within the lock, one of the
+;;; conflicting accesses must happen-before the other, and so there is
+;;; no data race. Once the flag is set, work1 can safely be read,
+;;; because the thread writing work1 did so before setting the flag,
+;;; and setting the flag happened before reading it as set.
+
+(let ((flag nil) (lock (make-lock)) (cv (make-condition-variable))
+      (work1 nil) (work2 nil))
+  (make-thread (lambda () (setf work1 (do-some-work))
+                          (with-lock-held (lock) (setf flag t))
+                          (loop until (condition-notify cv))))
+  (setf work2 (do-other-work))
+  (loop (condition-wait cv lock) (when flag (return)))
+  (combine-works work1 work2))
+;;; => defined
+;;; More efficient version of the above that makes the thread block
+;;; while waiting, instead of running a spinlock.
+;;; Note that while the CONDITION-NOTIFY call is not performed while
+;;; the lock is held, the detailed semantics of condition variables
+;;; described in Section NN.4.1 (Semantics of Condition Variables) ensure
+;;; that it is adequately synchronized with the CONDITION-WAIT operations.
