@@ -27,7 +27,7 @@ Description:
   attempted.
 
   Declaring (INTERRUPTIBLE 0) does not prevent any interrupt processing from
-  occurring, and in particular, SLEEP, CONDITION-WAIT, and THREAD-JOIN must
+  occurring, and in particular, SLEEP, CONDITION-WAIT, and JOIN-THREAD must
   process interrupts regardless. For code to be actually uninterruptible,
   interrupt processing must be dynamically deferred, as by WITHOUT-INTERRUPTS.
 

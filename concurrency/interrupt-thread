@@ -33,7 +33,7 @@ Description:
 
   [Define INTERRUPT, a subclass of CONDITION.
    Interruptions can be signaled (as by SIGNAL) by any standard operator.
-   (Operators that should especially signal interrupts are SLEEP, THREAD-JOIN,
+   (Operators that should especially signal interrupts are SLEEP, JOIN-THREAD,
     and CONDITION-WAIT. Maybe require it?)
    An interrupt being signaled indicates that the thread has been interrupted
    and should respond at its convenience.

@@ -6,7 +6,7 @@ Class Precedence List:
 
 Description:
 
-  An error of type ABNORMAL-EXIT is signaled when THREAD-JOIN is called on a
+  An error of type ABNORMAL-EXIT is signaled when JOIN-THREAD is called on a
   thread that ended abnormally. The ABNORMAL-EXIT can be initialized with a
   condition that precipitated the abort with the initarg :CONDITION, and this
   condition can be read by the function ABNORMAL-EXIT-CONDITION.

@@ -4,7 +4,7 @@ as well. Three cases are required:
 
 * When execution of a thread has temporarily ceased due to SLEEP.
 * When a thread is blocking on a condition variable due to CONDITION-WAIT.
-* When a thread is waiting for another thread to finish due to THREAD-JOIN.
+* When a thread is waiting for another thread to finish due to JOIN-THREAD.
 
 This means that if a thread is in one of these three situations, interrupts are
 processed when they are received - before the blocked/waiting function has

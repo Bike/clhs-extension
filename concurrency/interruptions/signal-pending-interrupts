@@ -14,7 +14,7 @@ Description:
   the order the interrupts were received. Signaling is done as if by SIGNAL.
 
   SIGNAL-PENDING-INTERRUPTS is effectively called during successful calls to the
-  standard functions SLEEP, THREAD-JOIN, CONDITION-WAIT, and any others defined
+  standard functions SLEEP, JOIN-THREAD, CONDITION-WAIT, and any others defined
   to do so by the implementation.
 
   The restarts REJECT-INTERRUPT and DEFER-INTERRUPT are established around the
