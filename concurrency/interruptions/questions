@@ -1,0 +1,58 @@
+* Should interrupts be required to be processed in order?
+  More exactly: Should it be required that if one call to interrupt-thread
+  happens-before another to the same thread, the first interrupt is processed
+  before the second? This imposes some burden on the implementation. I don't
+  know how useful it is. Things get a little weird with deferment (does
+  deferment move an interrupt to the back of the line, so to speak? I think not)
+  but that could be overcome.
+* Should it be legal to reuse interrupts?
+  If an interrupt represents an action _of interruption_ rather than the
+  interruption itself it wouldn't make sense to reuse them. More concretely, if
+  it was possible for an interrupting thread to check up on the status of an
+  interrupt - something I can imagine being useful, e.g. to debug a thread
+  that doesn't check interrupts enough - reuse would be bizarre.
+* Should it be possible to locally reenable interrupts within the extent of a
+  WITHOUT-INTERRUPTS form?
+  SBCL has an elaborate system for this: WITHOUT-INTERRUPTS establishes a local
+  macro ALLOW-WITH-INTERRUPTS. Within the dynamic extent of that, another
+  macro WITH-INTERRUPTS can be used to enable interrupts. This allows the
+  lexical body of WITHOUT-INTERRUPTS to control when code can dynamically
+  decide to allow interrupts. One notable use is GRAB-MUTEX, the function to
+  acquire a lock. It is not interrupt safe (i.e. if interrupts are enabled when
+  you call GRAB-MUTEX, there may be UB) and the docstring says to call it like
+  (without-interrupts ... (allow-with-interrupts (grab-mutex ...)) ...)
+  so that GRAB-MUTEX can do its work successfully, but still be interruptible
+  if it has to wait on a lock. Seems kind of bizarre - why not just have
+  GRAB-MUTEX internally protect the interrupt-unsafe parts but leave the safe
+  parts uncovered?
+* Should deferment be handled through the condition system?
+  In the pages I wrote up here I figured that to defer an interrupt for later,
+  you have to put in a handler that invokes a deferment restart. But in test
+  implementations this has been strange to deal with. First off there is an
+  issue of efficiency - doing it this way means that even in a
+  without-interrupts block, the system has to locate and call a handler for
+  every interrupt it gets - probably multiple times on the same interrupt, if
+  interrupts are processed more than once in the block - which in the kind of
+  realtime application interrupts might matter for could be bad. But the
+  primary issue is semantic. Imagine if interrupts were processed while a
+  handler was being called. Then an interrupt would be processed in a dynamic
+  environment without that handler. But then it is impossible to defer
+  interrupts, since any handler could be interrupted. So we must define things
+  so that if an interrupt is signaled during the handling of an interrupt it
+  must be deferred. But establishing a handler like this is not something we
+  can do in conforming code (we could e.g. pop from the cdr of
+  *handler-clusters* providing an implementation works that way - that's what
+  i did in one of my sketches), and has unusual consequences - for one, what if
+  an interrupt handler does something long that should be interruptible? What
+  if someone wants to use the usual condition system idiom of resignaling the
+  condition from a handler to see if anything higher level wants a taste?
+  Additionally, a complicated deferment handler (like a non pure function e.g.)
+  is not very useful, since an deferred interrupt may be resignaled any number
+  of times anywhere - logging it or something is totally pointless.
+  An alternate design would be interrupt masking: conditionally preventing
+  interrupts from being signaled at all. For example there could be
+  (with-interrupts-masked ([type]) [body]) which prevents interrupts of the
+  given type from being signaled. Because this dynamic environment would not be
+  undone during signaling, unlike handlers, there would be no need to define
+  any special semantics for the interrupt processor (i.e. it could be
+  interrupted just fine).
