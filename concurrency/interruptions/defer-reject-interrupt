@@ -1,0 +1,20 @@
+Function DEFER-INTERRUPT, REJECT-INTERRUPT
+
+Syntax:
+
+  defer-interrupt interrupt =>|
+  reject-interrupt interrupt =>|
+
+Arguments and Values:
+
+  interrupt - an interrupt.
+
+Description:
+
+  Transfers control to the most recently established applicable restart having
+  the same name as the function. That is, the function DEFER-INTERRUPT searches
+  for an applicable DEFER-INTERRUPT restart, and the function REJECT-INTERRUPT
+  searches for an applicable REJECT-INTERRUPT restart.
+
+  If interrupt is not an interrupt currently being signaled, an error of type
+  CONTROL-ERROR is signaled.

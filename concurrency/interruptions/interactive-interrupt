@@ -1,0 +1,15 @@
+Condition Type INTERACTIVE-INTERRUPT
+
+Class Precedence List:
+
+  INTERACTIVE-INTERRUPT, INTERRUPT, CONDITION, T
+
+Description:
+
+  Represents a thread being interrupted by an invocation of the debugger. This
+  could be issued to a thread when the user wishes to interrupt a running
+  thread, for example.
+
+
+  [BREAK-INTERRUPT might be a better name, since invoking the debugger isn't
+   necessarily interactive?]

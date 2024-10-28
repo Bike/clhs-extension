@@ -1,0 +1,25 @@
+Macro ATOMIC-EXCHANGE
+
+Syntax:
+
+  atomic-exchange form place &key order &allow-other-keys => old-value
+
+Arguments and Values:
+
+  form - evaluated.
+  place - a place with an atomic expansion.
+  order - an atomic ordering designator. Default is :sequentially-consistent.
+  
+Description:
+
+  Writes the value of form to place, and returns the old value of place. This is
+  an atomic read-modify-write operation.
+
+Notes:
+
+  Except for the multiple evaluation of subforms of place,
+
+  (atomic-exchange obj place ...)
+  = (loop for old = (atomic place ...)
+          until (eql old (cas-explicit (place ...) old form))
+	  finally (return old))

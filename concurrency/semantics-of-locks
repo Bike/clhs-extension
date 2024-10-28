@@ -1,0 +1,7 @@
+For any execution of a program, each lock it uses has a modification order. The modification order is a sequence of lock acquisitions followed by lock releases. The modification order may be empty if no thread ever acquires the lock, but otherwise, it begins with a lock acquisition. A lock's modification order is the same between all threads.
+
+A "lock acquisition" specifically occurs when a call to ACQUIRE-LOCK on that lock returns true, and a "lock release" occurs when a call to RELEASE-LOCK on that lock returns. [This is phrased pedantically so that for example a RELEASE-LOCK call that signals an error due to the lock not being held is not counted.]
+
+For any release in the modification order, the acquisition immediately before it in the order is sequenced-before the release, because only the thread that acquired a lock can release it. It is further defined that for any acquisition of the lock past the first, the release immediately before it in the order synchronizes-with the acquisition. Together, these two properties ensure that any operation in the modification order happens-before the subsequent operation in the modification order, and therefore happens-before all subsequent operations in the modification order.
+
+The modification orders of locks must result in a consistent (i.e. acyclic) happens-before ordering of evaluations. Beyond this and the above properties, the modification order is not defined and may vary between executions.

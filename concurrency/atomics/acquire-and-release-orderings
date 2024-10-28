@@ -1,0 +1,18 @@
+The acquire ordering can only be given to reads, and the release ordering only
+to writes.
+
+Acquire and release accesses synchronize. An acquiring read's write, if it is a
+release operation or stronger, synchronizes-with the read.
+
+This can be used in the implementation of locks, and lock operations gave these
+orderings their names. Acquiring a lock is a read (of a shared lock flag), and
+releasing a lock is a write. The release immediately before the acquisition in
+the lock's modification order necessarily synchronizes-with it, ensuring that
+any operations performed while the lock was held are visible to the new lock
+holder.
+
+Acquire and release accesses do not need to be as closely paired as they are
+with locks. For example, consider a shared cache, which is written by some
+threads and read by others. Multiple writes may occur without intervening reads,
+and only the write immediately prior to a read in the modification order
+synchronizes-with that read.

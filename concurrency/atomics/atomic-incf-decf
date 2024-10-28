@@ -1,0 +1,32 @@
+Macro ATOMIC-INCF, ATOMIC-DECF, ATOMIC-INCF-EXPLICIT, ATOMIC-DECF-EXPLICIT
+
+Syntax:
+
+  atomic-incf place &optional delta => new
+  atomic-decf place &optional delta => new
+  atomic-incf-explicit (place &key order &allow-other-keys) &optional delta
+    => new
+  atomic-decf-explicit (place &key order &allow-other-keys) &optional delta
+    => new
+
+Arguments and Values:
+
+  place - a place, the value of which is a number, which has an atomic
+          expansion.
+  delta - Evaluated. A number. Default is 1.
+  order - An atomic ordering specifier. Default is :sequentially-consistent.
+  new - The value written by the operation.
+
+Description:
+
+  As INCF and DECF, but as atomic read-modify-write operations.
+
+  The place may be read multiple times, but its subforms are evaluated only
+  once, as is delta. The order of evaluations is as specified in Section
+  5.1.1.1 (Evaluation of Subforms to Places).
+
+Notes:
+
+  (atomic-incf place ...) = (atomic-incf-explicit (place) ...)
+  (atomic-incf-explicit (place ...) delta)
+    = (atomic-update-explicit (place ...) #'+ delta)

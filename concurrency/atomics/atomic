@@ -1,0 +1,48 @@
+Accessor ATOMIC
+
+Syntax:
+
+  atomic place &key order &allow-other-keys => value
+  (setf (atomic place &key order &allow-other-keys) new-value)
+
+Arguments and Values:
+
+  place - a place.
+  order - an atomic ordering designator. Default is :sequentially-consistent.
+  value, new-value - objects.
+
+Description:
+
+  ATOMIC is used to indicate that access to a place must be performed such that its effects and results are defined even in the presence of conflicting accesses. Various requirements are imposed depending on the value of order: See NN.5.1.
+
+  Possibilities for order are :unordered, :relaxed, :acquire, :release, :acquire-release, :sequentially-consistent. The default is :sequentially-consistent. Other than :not-atomic, these correspond to the atomic orderings described in NN.5.1.
+
+  Any other keyword arguments are passed, unevaluated, to GET-ATOMIC-EXPANSION.
+
+  The atomicity applies only to the single access, and not to evaluation of the subforms.
+
+  ATOMIC of a THE place is defined such that (atomic (the spec place) order) = (the spec (atomic place order)). ATOMIC of a macro place is defined such that (atomic macro-form order) = (atomic expanded-form order).
+
+  Implementations are required to support atomic with at least the following places and ordering :sequentially-consistent: lexical variables (including closed-over variables), special variables, CAR, CDR, FIRST, REST, SVREF, SYMBOL-VALUE, STANDARD-INSTANCE-ACCESS, FUNCALLABLE-STANDARD-INSTANCE-ACCESS, structure slots with a type that T is recognizably a subtype of, SLOT-VALUEgiven that T is a recognizable subtype of the slot's type.
+
+Exceptional Situations:
+
+  If the requirements cannot be met, an error of type not-atomic is signaled.
+
+Notes:
+
+  ATOMIC could be implemented in terms of GET-ATOMIC-EXPANSION as follows:
+
+  (defmacro atomic (place &rest keys &key order &allow-other-keys
+                    &environment env)
+    (declare (ignore order))
+    (multiple-value-bind (vars vals stores write read)
+        (apply #'get-atomic-expansion place :environment env keys)
+      (declare (ignore stores write))
+      `(let* (,@(mapcar #'list vars vals)) ,read)))
+
+  (define-setf-expander atomic (place
+                                &rest keys &key order &allow-other-keys
+                                &environment env)
+    (declare (ignore order))
+    (apply #'get-atomic-expansion place :environment env keys))

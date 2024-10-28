@@ -1,0 +1,9 @@
+Condition Type DESTRUCTION-INTERRUPT
+
+Class Precedence List:
+
+  DESTRUCTION-INTERRUPT, INTERRUPT, CONDITION, T
+
+Description:
+
+  Interrupts requesting a thread to abort are of this type.

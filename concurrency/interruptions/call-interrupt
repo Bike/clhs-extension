@@ -1,0 +1,15 @@
+Condition Type CALL-INTERRUPT
+
+Class Precedence List:
+
+  CALL-INTERRUPT, INTERRUPT, CONDITION, T
+
+Description:
+
+  Interrupts requesting a thread to call a given function are of this type. The
+  function is initialized with the initarg :FUNCTION, and can be read by the
+  function CALL-INTERRUPT-FUNCTION.
+
+See Also:
+
+  CALL-INTERRUPT-FUNCTION

@@ -1,0 +1,12 @@
+Condition Type SIMPLE-INTERRUPT
+
+Class Precedence List:
+
+  SIMPLE-INTERRUPT, SIMPLE-CONDITION, INTERACTIVE-INTERRUPT, INTERRUPT,
+  CONDITION, T
+
+Description:
+
+  The type SIMPLE-INTERRUPT consists of interrupts that are placed on a thread's
+  pending interrupt list by INTERRUPT-THREAD when no datum is supplied, or when
+  the datum is a format control.

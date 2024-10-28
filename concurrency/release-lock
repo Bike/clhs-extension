@@ -1,0 +1,25 @@
+Function RELEASE-LOCK
+
+Syntax:
+
+  release-lock lock => implementation-dependent
+
+Arguments and Values:
+
+  lock - a lock.
+
+Description:
+
+  Releases the lock if it is held by the current thread. The consequences are
+  undefined if the lock is not held by the current thread.
+
+  A lock release synchronizes-with the lock acquisition immediately subsequent
+  to it in the lock's modification order, if there is one.
+
+Exceptional Situations:
+
+  An error of type TYPE-ERROR should be signaled if lock is not a LOCK.
+
+See Also:
+
+  WITH-LOCK-HELD, ACQUIRE-LOCK

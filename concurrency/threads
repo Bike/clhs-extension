@@ -1,0 +1,6 @@
+A thread is an object that represents a thread of execution. Each thread begins by calling a function provided when the thread is created, and ends when that function returns, or when the thread is aborted. The detailed semantics of threads are explained in Section NN.1 (Concurrency Concepts).
+
+thread thread-name threadp make-thread current-thread all-threads join-thread
+abort-thread thread-yield interrupt-thread signal-in-thread warn-in-thread
+error-in-thread destroy-thread thread-alive-p
+Figure [whatever]. Some defined names relating to threads.

@@ -1,0 +1,43 @@
+Functions CONDITION-NOTIFY, CONDITION-BROADCAST
+
+Syntax:
+
+  condition-notify condition-variable => notifiedp
+  condition-broadcast condition-variable => notifiedp
+
+Arguments and Values:
+
+  condition-variable - a condition variable.
+  notifiedp - a generalized boolean.
+
+Description:
+
+  Unblocks one (for CONDITION-NOTIFY) or all (for CONDITION-BROADCAST) threads
+  waiting on a condition variable.
+
+  The order unblocking occurs in is not specified. In particular, there is no
+  requirement that threads be unblocked in the order they blocked. After a
+  CONDITION-BROADCAST it is not defined which unblocked thread first
+  successfully reacquires the lock.
+
+  Returns true if at least one thread was unblocked, and otherwise false.
+
+Exceptional Situations:
+
+  None.
+
+See Also:
+
+  CONDITION-VARIABLE, CONDITION-NOTIFY, CONDITION-WAIT, Section NN.4.1
+  (Semantics of Condition Variables).
+
+Notes:
+
+  Many sources suggest that the condition variable's related mutex needs to be
+  held around any calls to CONDITION-NOTIFY or CONDITION-BROADCAST. This is not
+  true in general, and can cause slight inefficiency as a thread may be
+  unblocked only to have to immediately wait to reacquire the lock. The detailed
+  concurrency semantics of condition variables ensure that some synchronization
+  occurs even if notifications are performed without holding locks.
+  However, in some situations it may be useful to hold locks while notifying,
+  for precise synchronization.

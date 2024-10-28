@@ -1,0 +1,9 @@
+The weak constraints on evaluations between threads can sometimes produce very unintuitive results. This section attempts to explain one reason for this in more detail, in order to provide some intuition for programmers.
+
+Consider the form (let ((x 1) (y 1)) (setq x 0) (setq y 0) ...). The write to x is sequenced-before the write to y. However, the evaluation of (setq y 0) is not affected by the side effects of (setq x 0). Subsequent code **in the same thread** is not able to discern which write actually took place first. As such, an implementation may decide to actually evaluate the write to y before the write to x. In other words, it has reordered the code. In this example there is no obvious point to doing so, but this is sometimes useful for optimization purposes.
+
+The situation is complicated by concurrency. Consider what happens if another thread evaluates (list x y), and this evaluation is unordered with respect to the evaluation of the let form. If the implementation has performed the reordering described, it might be possible for (list x y) to result in (1 0), even though from looking at the obvious meaning of the let form, there is no point at which X is 1 and Y is 0.
+
+Other valid transformations with similar effects are possible, such as eliding writes. These transformations are widely carried out by compilers and machines and are very important to performance. Programmers working with concurrency should keep in mind the unintuitive effects unordered evaluations can cause.
+
+The particular semantics of unordered writes and reads are explained in more detail in Section NN.1.3 (Conflicts and Data Races).

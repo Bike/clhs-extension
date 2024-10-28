@@ -1,0 +1,3 @@
+Accesses to some places may conflict with accesses to distinct places. In particular, a write to any position in an array, or any slot of a STRUCTURE-OBJECT, or any slot of a STANDARD-OBJECT with allocation :instance, may conflict with accesses to any other position of the array or any other slot of the object, unless T is a recognizable subtype of the upgraded array element type of the array or of the slot's declared type.
+
+This provision allows implementations to store objects in compact formats not amenable to atomic access. Implementations are encouraged to document which accesses to places of this sort may interfere with one another.

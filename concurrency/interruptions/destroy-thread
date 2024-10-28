@@ -1,0 +1,28 @@
+Function DESTROY-THREAD
+
+Syntax:
+
+  destroy-thread thread => interrupt
+
+Arguments and Values:
+
+  thread - a thread.
+  interrupt - an interrupt of type DESTRUCTION-INTERRUPT.
+
+Description:
+
+  Creates an interrupt of type DESTRUCTION-INTERRUPT, adds it to the thread's
+  pending interrupt list, and then returns it. If the interrupt is serviced, the
+  thread will be aborted.
+
+  A call to DESTROY-THREAD synchronizes-with any signaling of the interrupt in
+  the thread.
+
+Exceptional Situations:
+
+  If the thread is no longer alive, an error of type THREAD-DEAD is signaled.
+
+Notes:
+
+  (defun destroy-thread (thread)
+    (interrupt-thread thread 'destruction-interrupt))

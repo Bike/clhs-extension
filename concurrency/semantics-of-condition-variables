@@ -1,0 +1,49 @@
+Implicitly associated with a condition variable is a set of threads currently
+blocked on it. CONDITION-WAIT adds a thread to this set, CONDITION-NOTIFY
+removes one arbitrarily selected thread from it, and CONDITION-BROADCAST empties
+the set entirely.
+
+A CONDITION-WAIT's adding the current thread to the set clearly must
+happen-before CONDITION-NOTIFY or CONDITION-BROADCAST removing it. Since the
+CONDITION-NOTIFY or CONDITION-BROADCAST necessarily takes place in a different
+thread, we require that CONDITION-WAIT blocking its thread synchronizes-with the
+call to CONDITION-NOTIFY or CONDITION-BROADCAST that unblocks it.
+
+Clearly the waiting thread cannot attempt to reacquire the lock until it has
+been unblocked, by the basic definition of condition variables. So the call to
+CONDITION-NOTIFY or CONDITION-BROADCAST synchronizes-with the waiting thread's
+attempt to acquire the lock. (Attempts, rather than a successful acquisition,
+are referred to here to hedge against the possibility that, for example,
+attempting to acquire a lock could cause some other effect, like an error being
+signaled.) A waiting thread can also be spuriously unblocked, for which case
+further synchronization is not required.
+
+In more detail, we can define a modification order for each condition variable's
+blocking set. The modification order consists of writes to the blocking set
+(adding a thread, removing a thread, or removing all threads) as well as the
+reads implicitly performed by the notification functions to determine their
+return value. For example, a notification that removes a thread must appear in
+the order after to the CONDITION-WAIT that put the thread there, and there must
+not be any CONDITION-WAIT blockings between two CONDITION-BROADCASTS if the
+second CONDITION-BROADCAST returns false. Then we require that entries in the
+order must happen-before later entries in the order, whether by synchronization
+or sequencing.
+
+To avoid a "lost wakeup" problem, CONDITION-WAIT releasing the lock and blocking
+must occur atomically. Specifically, it cannot be possible for another thread to
+acquire the lock and then observe that the waiting thread is not in the blocked
+set. If it were not so, the following could occur: the lock is released. Another
+thread acquires the lock, alters the condition so that the thread could be
+unblocked, and then in whatever order releases the lock and notifies the
+condition variable. When it performs the notification, the waiting thread has
+not yet been added to the waiting set, so the waiting thread will not be
+unblocked/"awoken" until something else unblocks it.
+
+We can formalize this last condition by saying that if the lock release
+synchronizes-with a lock acquisition, CONDITION-WAIT blocking the thread also
+synchronizes-with that lock acquisition. [I'm not sure that requiring this in
+the other direction is strictly necessary. You can imagine blocking the thread
+without releasing the lock, and then another thread unblocking the thread, and
+then this causing the waiting thread to try to acquire the lock it has not yet
+released, but since the lock release is already sequenced-before the lock
+acquisition maybe this isn't required.]

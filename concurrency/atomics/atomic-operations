@@ -1,0 +1,19 @@
+Some accesses to places are atomic[2]. Atomic access allows threads to operate
+on the same data without the expense of locks and without causing data races.
+
+There are two ways this is possible. First, some atomic accesses are
+synchronization operations. This means that they can cause synchronizes-with
+relations between evaluations similar to those caused by locks, and can be
+them sequentially consistent on top of that. Second, all atomic accesses have
+defined behavior even when they conflict and there is no happens-before ordering
+between them, although sometimes that behavior is only loosely defined.
+
+NN.5.# Reads and Writes and Modification Orders
+
+NN.5.# Atomic Ordering
+
+NN.5.# Atomic Read-Modify-Write Operations
+
+NN.5.# The ATOMIC Macro and Atomic Expansions
+
+NN.5.# Fences
